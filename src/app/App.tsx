@@ -1,6 +1,6 @@
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import { useAppStorage } from '../hooks/useAppStorage';
-import { ThemeProvider } from '../context/ThemeContext';
+import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { WelcomePage } from '../pages/WelcomePage';
 import { CategoriesPage } from '../pages/CategoriesPage';
@@ -13,12 +13,13 @@ import { SettingsPage } from '../pages/SettingsPage';
 function AppInner() {
   const storageHook = useAppStorage();
   const navigate = useNavigate();
+  const { theme, reshuffleBackground } = useTheme();
 
   return (
     <>
       <nav className="app-nav" aria-label="Головна навігація">
         <NavLink to="/" className="app-nav__title">
-          🦊 Мій список
+          {theme === 'kawaii' ? '🌸 Мій список' : '🦊 Мій список'}
         </NavLink>
         <ul className="app-nav__links" role="list">
           <li><NavLink to="/" end className={({ isActive }) => `app-nav__link${isActive ? ' active' : ''}`}>Головна</NavLink></li>
@@ -27,7 +28,26 @@ function AppInner() {
           <li><NavLink to="/search" className={({ isActive }) => `app-nav__link${isActive ? ' active' : ''}`}>Пошук</NavLink></li>
           <li><NavLink to="/settings" className={({ isActive }) => `app-nav__link${isActive ? ' active' : ''}`}>Налаштування</NavLink></li>
         </ul>
-        <ThemeToggle />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {theme === 'kawaii' && (
+            <button
+              onClick={reshuffleBackground}
+              title="Змінити фон"
+              aria-label="Змінити фон"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '1.2rem',
+                padding: '0.25rem',
+                minHeight: '36px',
+              }}
+            >
+              🎲
+            </button>
+          )}
+          <ThemeToggle />
+        </div>
       </nav>
 
       <main className="app-main" id="main-content">

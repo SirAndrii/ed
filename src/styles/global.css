@@ -29,7 +29,7 @@
 
   --nav-bg: var(--color-surface);
   --body-pattern: none;
-  --body-pattern-size: 24px 24px;
+  --body-pattern-size: 1px 1px;
   --card-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
@@ -62,8 +62,8 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
   --nav-bg: linear-gradient(135deg, #ffcce8 0%, #e8d5ff 100%);
-  --body-pattern: radial-gradient(circle, #ffb3d4 1.5px, transparent 1.5px);
-  --body-pattern-size: 22px 22px;
+  --body-pattern: none;
+  --body-pattern-size: 1px 1px;
   --card-shadow: 0 4px 20px rgba(255, 107, 168, 0.12);
 }
 
@@ -106,6 +106,13 @@ img, svg { display: block; max-width: 100%; }
 /* ===== App Layout ===== */
 #root {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ThemeProvider inner wrapper — same layout */
+#root > div {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
