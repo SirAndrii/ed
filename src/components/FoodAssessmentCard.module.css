@@ -85,26 +85,19 @@
   outline-offset: 2px;
 }
 
-/* Always-on background colors */
-.option.low        { background: var(--color-low-soft);     border-color: color-mix(in srgb, var(--color-low) 30%, transparent); }
-.option.medium     { background: var(--color-medium-soft);  border-color: color-mix(in srgb, var(--color-medium) 30%, transparent); }
-.option.high       { background: var(--color-high-soft);    border-color: color-mix(in srgb, var(--color-high) 30%, transparent); }
-.option.unsure,
-.option.unfamiliar { background: var(--color-primary-soft); border-color: color-mix(in srgb, var(--color-primary) 30%, transparent); }
-
-/* Hover — slightly stronger border */
+/* Keep every option neutral until it is selected. */
 .option.low:hover        { border-color: var(--color-low); }
 .option.medium:hover     { border-color: var(--color-medium); }
 .option.high:hover       { border-color: var(--color-high); }
 .option.unsure:hover,
 .option.unfamiliar:hover { border-color: var(--color-primary); }
 
-/* Selected — solid border + slight shadow */
-.option.low.selected        { border-color: var(--color-low);     box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-low) 25%, transparent); }
-.option.medium.selected     { border-color: var(--color-medium);  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-medium) 25%, transparent); }
-.option.high.selected       { border-color: var(--color-high);    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-high) 25%, transparent); }
+/* Selected — colored fill, solid border and slight shadow. */
+.option.low.selected        { background: var(--color-low-soft); border-color: var(--color-low); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-low) 25%, transparent); }
+.option.medium.selected     { background: var(--color-medium-soft); border-color: var(--color-medium); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-medium) 25%, transparent); }
+.option.high.selected       { background: var(--color-high-soft); border-color: var(--color-high); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-high) 25%, transparent); }
 .option.unsure.selected,
-.option.unfamiliar.selected { border-color: var(--color-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent); }
+.option.unfamiliar.selected { background: var(--color-primary-soft); border-color: var(--color-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent); }
 
 .optLabel {
   font-weight: 600;

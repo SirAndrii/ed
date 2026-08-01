@@ -90,7 +90,7 @@
   transition: border-color 0.12s, background 0.12s;
 }
 
-.option:hover { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.option:hover { border-color: var(--color-primary); }
 .option.selected { border-color: var(--color-primary); background: var(--color-primary-soft); font-weight: 600; }
 .option:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 
