@@ -7,6 +7,7 @@ interface Props {
   onBackToCategories: () => void;
   onFinishForToday: () => void;
   onChooseAnother?: () => void;
+  onStartPastSurvey?: () => void;
 }
 
 export function SessionComplete({
@@ -16,6 +17,7 @@ export function SessionComplete({
   onBackToCategories,
   onFinishForToday,
   onChooseAnother,
+  onStartPastSurvey,
 }: Props) {
   return (
     <div className={styles.wrapper} role="main">
@@ -43,6 +45,12 @@ export function SessionComplete({
           Завершити на сьогодні
         </button>
       </div>
+
+      {onStartPastSurvey && (
+        <button className={styles.btnLink} onClick={onStartPastSurvey}>
+          Оцінити, як це було рік тому →
+        </button>
+      )}
 
       {onChooseAnother && (
         <button className={styles.btnLink} onClick={onChooseAnother}>

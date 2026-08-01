@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { pickRandomBackground, type KawaiiBackground } from '../lib/kawaiiIcons';
+import { pickRandomBackground, type KawaiiBackground } from '../config/backgrounds';
 
 export type Theme = 'anime' | 'kawaii';
 

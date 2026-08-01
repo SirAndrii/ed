@@ -1,56 +1,70 @@
-import type { FoodItem, FoodAssessment, DifficultyLevel, PastDifficultyLevel } from '../types';
-import { DifficultySelector } from './DifficultySelector';
-import { PastDifficultySelector } from './PastDifficultySelector';
+import type { FoodItem, FoodAssessment, DifficultyLevel } from '../types';
 import { StoreTags } from './StoreTags';
 import styles from './FoodAssessmentCard.module.css';
+
+const OPTIONS: { value: DifficultyLevel; label: string; description: string }[] = [
+  { value: 'low',        label: 'Низька складність',  description: 'Зазвичай можу їсти без значної тривоги.' },
+  { value: 'medium',     label: 'Середня складність', description: 'Може бути тривожно або залежить від ситуації.' },
+  { value: 'high',       label: 'Висока складність',  description: 'Зараз викликає сильну тривогу або бажання уникнути.' },
+  { value: 'unsure',     label: 'Не знаю',            description: 'Не впевнена, як це оцінити.' },
+  { value: 'unfamiliar', label: 'Не знайома',         description: 'Не їла або не пам\'ятаю цей продукт.' },
+];
 
 interface Props {
   food: FoodItem;
   assessment: FoodAssessment | null;
   showStoreTags: boolean;
-  onChangeCurrent: (value: DifficultyLevel) => void;
-  onChangePast: (value: PastDifficultyLevel) => void;
-  onNext: () => void;
+  /** Called immediately on click — saves to localStorage and auto-advances */
+  onSelect: (value: DifficultyLevel) => void;
   onBack: () => void;
-  onSkip: () => void;
   onSaveExit: () => void;
   isFirst: boolean;
-  isLast: boolean;
 }
 
 export function FoodAssessmentCard({
   food,
   assessment,
   showStoreTags,
-  onChangeCurrent,
-  onChangePast,
-  onNext,
+  onSelect,
   onBack,
-  onSkip,
   onSaveExit,
   isFirst,
-  isLast,
 }: Props) {
+  const current = assessment?.current ?? null;
+
   return (
     <div className={styles.card}>
       <div className={styles.foodHeader}>
-        <h2 className={styles.nameUk}>{food.nameUk}</h2>
-        <p className={styles.nameEn}>{food.nameEn}</p>
-        {showStoreTags && <StoreTags tags={food.storeTags} />}
-        <p className={styles.storeNote} aria-live="off">
-          Позначка магазину не гарантує, що продукт зараз є в наявності.
-        </p>
+        <div className={styles.nameRow}>
+          <h2 className={styles.nameUk}>{food.nameUk}</h2>
+          {food.nameEn && food.nameEn !== food.nameUk && (
+            <span className={styles.nameEn}>{food.nameEn}</span>
+          )}
+        </div>
+        {showStoreTags && food.storeTags.length > 0 && (
+          <StoreTags tags={food.storeTags} />
+        )}
       </div>
 
-      <DifficultySelector
-        value={assessment?.current ?? null}
-        onChange={onChangeCurrent}
-      />
-
-      <PastDifficultySelector
-        value={assessment?.oneYearAgo ?? null}
-        onChange={onChangePast}
-      />
+      <fieldset className={styles.fieldset}>
+        <legend className={styles.legend}>
+          Наскільки складним для тебе здається цей продукт зараз?
+        </legend>
+        <div className={styles.options}>
+          {OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`${styles.option} ${styles[opt.value]} ${current === opt.value ? styles.selected : ''}`}
+              onClick={() => onSelect(opt.value)}
+              aria-pressed={current === opt.value}
+            >
+              <span className={styles.optLabel}>{opt.label}</span>
+              <span className={styles.optDesc}>{opt.description}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       <div className={styles.nav}>
         <button
@@ -61,30 +75,13 @@ export function FoodAssessmentCard({
         >
           ← Назад
         </button>
-
-        <div className={styles.navRight}>
-          <button
-            className={styles.btnGhost}
-            onClick={onSkip}
-            aria-label="Пропустити цей продукт"
-          >
-            Пропустити
-          </button>
-          <button
-            className={styles.btnGhost}
-            onClick={onSaveExit}
-            aria-label="Зберегти і вийти"
-          >
-            Зберегти й вийти
-          </button>
-          <button
-            className={styles.btnPrimary}
-            onClick={onNext}
-            aria-label={isLast ? 'Завершити категорію' : 'Наступний продукт'}
-          >
-            {isLast ? 'Завершити' : 'Далі →'}
-          </button>
-        </div>
+        <button
+          className={styles.btnGhost}
+          onClick={onSaveExit}
+          aria-label="Зберегти і вийти"
+        >
+          Зберегти й вийти
+        </button>
       </div>
     </div>
   );

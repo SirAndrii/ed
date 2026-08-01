@@ -8,7 +8,6 @@
   box-shadow: var(--card-shadow);
 }
 
-/* ===== Header ===== */
 .foodHeader {
   display: flex;
   flex-direction: column;
@@ -23,21 +22,42 @@
 }
 
 .nameUk {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
-  line-height: 1.2;
 }
 
 .nameEn {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--color-text-tertiary);
   font-weight: 400;
-  white-space: nowrap;
 }
 
-/* ===== Difficulty options ===== */
+.currentBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  width: fit-content;
+}
+
+.currentBadge.low      { background: var(--color-low-soft);    color: var(--color-low); }
+.currentBadge.medium   { background: var(--color-medium-soft); color: var(--color-medium); }
+.currentBadge.high     { background: var(--color-high-soft);   color: var(--color-high); }
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  line-height: 1.5;
+}
+
 .fieldset {
   border: none;
   padding: 0;
@@ -48,66 +68,32 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-text-secondary);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem;
   display: block;
 }
 
 .options {
   display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .option {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--color-border);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.12s, background 0.12s, transform 0.1s;
-  width: 100%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .option { transition: none; }
-}
-
-.option:hover {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-}
-
-.option:active {
-  transform: scale(0.985);
-}
-
-.option:focus-visible {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.option.selected          { border-color: var(--color-primary); background: var(--color-primary-soft); }
-.option.low.selected      { border-color: var(--color-low);     background: var(--color-low-soft); }
-.option.medium.selected   { border-color: var(--color-medium);  background: var(--color-medium-soft); }
-.option.high.selected     { border-color: var(--color-high);    background: var(--color-high-soft); }
-
-.optLabel {
-  font-weight: 600;
-  font-size: 0.92rem;
   color: var(--color-text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-height: 40px;
+  transition: border-color 0.12s, background 0.12s;
 }
 
-.optDesc {
-  font-size: 0.78rem;
-  color: var(--color-text-secondary);
-  margin-top: 0.15rem;
-}
+.option:hover { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.option.selected { border-color: var(--color-primary); background: var(--color-primary-soft); font-weight: 600; }
+.option:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 
-/* ===== Nav ===== */
 .nav {
   display: flex;
   justify-content: space-between;
@@ -126,7 +112,6 @@
   font-size: 0.88rem;
   cursor: pointer;
   min-height: 40px;
-  transition: border-color 0.12s;
 }
 
 .btnSecondary:hover:not(:disabled) { border-color: var(--color-primary); }
@@ -142,7 +127,6 @@
   font-size: 0.85rem;
   cursor: pointer;
   min-height: 40px;
-  transition: color 0.12s, background 0.12s;
 }
 
 .btnGhost:hover { color: var(--color-text); background: var(--color-bg); }

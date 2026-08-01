@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import type { NavigateFunction } from 'react-router-dom';
 import type { DifficultyLevel, PastDifficultyLevel, FoodAssessment } from '../types';
 import { FOODS, getCategoryById } from '../data';
 import { CategoryProgress, FoodAssessmentCard, BlockBreak, SessionComplete } from '../components';
+import { PastAssessmentCard } from '../components/PastAssessmentCard';
 import type { useAppStorage } from '../hooks/useAppStorage';
 import styles from './CategoryAssessmentPage.module.css';
 
 const BLOCK_SIZE = 10;
 
-type Stage = 'assessing' | 'block-break' | 'complete';
+type Stage = 'assessing' | 'block-break' | 'complete' | 'past-survey';
 
 interface Props {
   storageHook: ReturnType<typeof useAppStorage>;
@@ -22,12 +23,19 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
 
   const category = getCategoryById(categoryId ?? '');
   const allFoods = categoryId
-    ? [...FOODS.filter((f) => f.categoryId === categoryId), ...storage.customFoods.filter((f) => f.categoryId === categoryId)]
+    ? [
+        ...FOODS.filter((f) => f.categoryId === categoryId),
+        ...storage.customFoods.filter((f) => f.categoryId === categoryId),
+      ]
     : [];
 
   const savedProgress = categoryId ? storage.categoryProgress[categoryId] : undefined;
   const [currentIndex, setCurrentIndex] = useState(() => savedProgress?.currentFoodIndex ?? 0);
   const [stage, setStage] = useState<Stage>('assessing');
+  const [pastIndex, setPastIndex] = useState(0);
+
+  // Prevent double-advance on fast clicks
+  const advancing = useRef(false);
 
   useEffect(() => {
     if (!categoryId || !category) return;
@@ -64,26 +72,26 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
     );
   }
 
-  const food = allFoods[currentIndex];
-  const assessment = food ? storage.assessments[food.id] ?? null : null;
   const total = allFoods.length;
+  const food = allFoods[currentIndex] ?? allFoods[0];
+  const assessment = food ? (storage.assessments[food.id] ?? null) : null;
 
+  // ── COMPLETE screen ──────────────────────────────────────────────────────
   if (stage === 'complete') {
     return (
       <SessionComplete
         categoryName={category.nameUk}
         onViewResults={() => onNavigate(`/complete/${categoryId}`)}
-        onPrint={() => {
-          onNavigate(`/complete/${categoryId}`);
-          setTimeout(() => window.print(), 300);
-        }}
+        onPrint={() => { onNavigate(`/complete/${categoryId}`); setTimeout(() => window.print(), 300); }}
         onBackToCategories={() => onNavigate('/categories')}
         onFinishForToday={() => onNavigate('/')}
         onChooseAnother={() => onNavigate('/categories')}
+        onStartPastSurvey={() => { setPastIndex(0); setStage('past-survey'); }}
       />
     );
   }
 
+  // ── BLOCK BREAK ──────────────────────────────────────────────────────────
   if (stage === 'block-break') {
     return (
       <BlockBreak
@@ -96,37 +104,95 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
     );
   }
 
-  const updateAssessment = (
-    field: 'current' | 'oneYearAgo',
-    value: DifficultyLevel | PastDifficultyLevel
-  ) => {
-    if (!food) return;
+  // ── PAST SURVEY ──────────────────────────────────────────────────────────
+  if (stage === 'past-survey') {
+    const pastFood = allFoods[pastIndex];
+    const pastAssessment = pastFood ? (storage.assessments[pastFood.id] ?? null) : null;
+
+    const handlePastSelect = (value: PastDifficultyLevel) => {
+      if (!pastFood || advancing.current) return;
+      advancing.current = true;
+
+      const existing = storage.assessments[pastFood.id];
+      const updated: FoodAssessment = {
+        foodId: pastFood.id,
+        current: existing?.current ?? null,
+        oneYearAgo: value,
+        updatedAt: new Date().toISOString(),
+      };
+      setAssessment(updated);
+
+      setTimeout(() => {
+        advancing.current = false;
+        const next = pastIndex + 1;
+        if (next >= total) {
+          setStage('complete');
+        } else {
+          setPastIndex(next);
+        }
+      }, 300);
+    };
+
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.pastHeader}>
+          <span className={styles.pastBadge}>Опитування: рік тому</span>
+          <CategoryProgress
+            categoryName={category.nameUk}
+            current={pastIndex + 1}
+            total={total}
+          />
+        </div>
+        <PastAssessmentCard
+          food={pastFood}
+          assessment={pastAssessment}
+          onSelect={handlePastSelect}
+          onBack={() => { if (pastIndex > 0) setPastIndex(pastIndex - 1); }}
+          onSaveExit={() => onNavigate('/')}
+          isFirst={pastIndex === 0}
+        />
+      </div>
+    );
+  }
+
+  // ── MAIN ASSESSING ───────────────────────────────────────────────────────
+
+  const updateAndAdvance = (value: DifficultyLevel) => {
+    if (!food || advancing.current) return;
+    advancing.current = true;
+
+    // 1. Save assessment immediately
     const existing = storage.assessments[food.id];
     const updated: FoodAssessment = {
       foodId: food.id,
-      current: field === 'current' ? (value as DifficultyLevel) : (existing?.current ?? null),
-      oneYearAgo: field === 'oneYearAgo' ? (value as PastDifficultyLevel) : (existing?.oneYearAgo ?? null),
+      current: value,
+      oneYearAgo: existing?.oneYearAgo ?? null,
       updatedAt: new Date().toISOString(),
     };
     setAssessment(updated);
 
+    // 2. Update assessed list
     const currentProgress = storage.categoryProgress[categoryId];
     const alreadyAssessed = currentProgress?.assessedFoodIds ?? [];
     if (!alreadyAssessed.includes(food.id)) {
       setCategoryProgress({
-        ...(currentProgress ?? { categoryId, status: 'in-progress', currentFoodIndex: currentIndex, completedAt: null }),
+        ...(currentProgress ?? { categoryId, status: 'in-progress', completedAt: null }),
         categoryId,
         status: 'in-progress',
         currentFoodIndex: currentIndex,
         assessedFoodIds: [...alreadyAssessed, food.id],
       });
     }
+
+    // 3. Advance after short delay (visual feedback)
+    setTimeout(() => {
+      advancing.current = false;
+      goNext();
+    }, 300);
   };
 
   const goNext = () => {
     const nextIndex = currentIndex + 1;
-
-    // Update progress index
     const currentProgress = storage.categoryProgress[categoryId];
     setCategoryProgress({
       ...(currentProgress ?? { categoryId, status: 'in-progress', assessedFoodIds: [], completedAt: null }),
@@ -142,34 +208,13 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
 
     setCurrentIndex(nextIndex);
 
-    // Block break every BLOCK_SIZE foods
     if (nextIndex % BLOCK_SIZE === 0) {
       setStage('block-break');
     }
   };
 
   const goBack = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  const handleSkip = () => {
-    if (!food) return;
-    const existing = storage.assessments[food.id];
-    if (!existing?.current) {
-      setAssessment({
-        foodId: food.id,
-        current: 'skipped',
-        oneYearAgo: existing?.oneYearAgo ?? null,
-        updatedAt: new Date().toISOString(),
-      });
-    }
-    goNext();
-  };
-
-  const handleSaveExit = () => {
-    onNavigate('/');
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
   };
 
   const finishCategory = () => {
@@ -184,8 +229,6 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
     setStage('complete');
   };
 
-  if (!food) return null;
-
   return (
     <div className={styles.wrapper}>
       <CategoryProgress
@@ -198,14 +241,10 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
         food={food}
         assessment={assessment}
         showStoreTags={storage.preferences.showStoreTags}
-        onChangeCurrent={(v) => updateAssessment('current', v)}
-        onChangePast={(v) => updateAssessment('oneYearAgo', v)}
-        onNext={goNext}
+        onSelect={updateAndAdvance}
         onBack={goBack}
-        onSkip={handleSkip}
-        onSaveExit={handleSaveExit}
+        onSaveExit={() => onNavigate('/')}
         isFirst={currentIndex === 0}
-        isLast={currentIndex === total - 1}
       />
     </div>
   );
