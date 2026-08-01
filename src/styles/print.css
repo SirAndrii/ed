@@ -1,0 +1,40 @@
+@media print {
+  .app-nav,
+  .no-print,
+  button,
+  .anime-guide,
+  nav {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+    font-size: 12pt;
+  }
+
+  .print-report {
+    padding: 0;
+  }
+
+  .print-header {
+    margin-bottom: 1rem;
+    border-bottom: 2pt solid black;
+    padding-bottom: 0.5rem;
+  }
+
+  .print-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 0.4rem;
+  }
+
+  .print-legend {
+    margin-top: 1rem;
+    font-size: 10pt;
+    border-top: 1pt solid #ccc;
+    padding-top: 0.5rem;
+  }
+
+  a[href]::after { content: none !important; }
+}
