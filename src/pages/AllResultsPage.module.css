@@ -107,6 +107,8 @@
 .group.low    { border-color: var(--color-low); }
 .group.medium { border-color: var(--color-medium); }
 .group.high   { border-color: var(--color-high); }
+.group.unsure,
+.group.unfamiliar { border-color: var(--color-primary); }
 
 .groupTitle {
   display: flex;
@@ -121,6 +123,8 @@
 .group.low    .groupTitle { background: var(--color-low-soft);    color: var(--color-low); }
 .group.medium .groupTitle { background: var(--color-medium-soft); color: var(--color-medium); }
 .group.high   .groupTitle { background: var(--color-high-soft);   color: var(--color-high); }
+.group.unsure .groupTitle,
+.group.unfamiliar .groupTitle { background: var(--color-primary-soft); color: var(--color-primary); }
 
 .groupCount {
   margin-left: auto;

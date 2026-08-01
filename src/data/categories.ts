@@ -130,7 +130,7 @@ export const CATEGORIES: Category[] = [
   {
     id: 'custom',
     nameUk: 'Мої продукти',
-    description: 'Продукти, які ти додала самостійно',
+    description: 'Шукай потрібний продукт у пошуку. Якщо його не знайдено, там можна додати свій.',
     icon: '⭐',
     kawaiiIcon: '💖',
     isCustom: true,

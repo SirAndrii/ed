@@ -84,6 +84,23 @@ test('редагує оцінку в результатах і зберігає 
     .toBe('high');
 });
 
+test('показує групи Не знаю і Не спробувала та пояснює додавання своїх продуктів', async ({ page }) => {
+  await page.goto('/ed/#/assess/fruits');
+  await page.getByRole('button', { name: /Не знаю/ }).click();
+  await expect(page.getByRole('heading', { name: 'Банан' })).toBeVisible();
+  await page.getByRole('button', { name: /Не знайома/ }).click();
+  await expect(page.getByRole('heading', { name: 'Апельсин' })).toBeVisible();
+
+  await page.goto('/ed/#/results');
+  await page.getByRole('button', { name: 'За складністю' }).click();
+  await expect(page.getByRole('region', { name: 'Не знаю' })).toContainText('Яблуко');
+  await expect(page.getByRole('region', { name: 'Не спробувала' })).toContainText('Банан');
+
+  await page.getByRole('link', { name: 'Категорії' }).click();
+  await expect(page.getByText('Шукай потрібний продукт у пошуку. Якщо його не знайдено, там можна додати свій.'))
+    .toBeVisible();
+});
+
 test('зберігає налаштування, використовує opacity фону 0.5 та очищає всі дані', async ({ page }) => {
   await page.goto('/ed/#/settings');
 

@@ -13,9 +13,11 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const GROUPS = [
-  { key: 'low'    as const, label: 'Безпечні',  emoji: '✅' },
-  { key: 'medium' as const, label: 'Середні',   emoji: '🟡' },
-  { key: 'high'   as const, label: 'Складні',   emoji: '🔴' },
+  { key: 'low'        as const, label: 'Безпечні',       emoji: '✅' },
+  { key: 'medium'     as const, label: 'Середні',        emoji: '🟡' },
+  { key: 'high'       as const, label: 'Складні',        emoji: '🔴' },
+  { key: 'unsure'     as const, label: 'Не знаю',        emoji: '❔' },
+  { key: 'unfamiliar' as const, label: 'Не спробувала',  emoji: '🆕' },
 ];
 
 interface Props {
