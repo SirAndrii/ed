@@ -1,6 +1,7 @@
 import type { Category, CategoryProgress } from '../types';
 import styles from './CategoryCard.module.css';
 import { getFoodsByCategory } from '../data';
+import { useTheme } from '../context/ThemeContext';
 
 const STATUS_LABELS: Record<string, string> = {
   'not-started': 'Не розпочато',
@@ -21,11 +22,13 @@ export function CategoryCard({ category, progress, onSelect }: Props) {
   const total = foods.length;
   const assessed = progress?.assessedFoodIds.length ?? 0;
   const status = progress?.status ?? 'not-started';
+  const { theme } = useTheme();
+  const icon = theme === 'kawaii' && category.kawaiiIcon ? category.kawaiiIcon : category.icon;
 
   return (
     <article className={`${styles.card} ${styles[status.replace('-', '_')]}`}>
       <div className={styles.header}>
-        <span className={styles.icon} aria-hidden="true">{category.icon}</span>
+        <span className={styles.icon} aria-hidden="true">{icon}</span>
         <div className={styles.info}>
           <h2 className={styles.name}>{category.nameUk}</h2>
           <p className={styles.description}>{category.description}</p>

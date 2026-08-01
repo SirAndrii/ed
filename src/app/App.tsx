@@ -1,5 +1,7 @@
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import { useAppStorage } from '../hooks/useAppStorage';
+import { ThemeProvider } from '../context/ThemeContext';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { WelcomePage } from '../pages/WelcomePage';
 import { CategoriesPage } from '../pages/CategoriesPage';
 import { CategoryAssessmentPage } from '../pages/CategoryAssessmentPage';
@@ -8,7 +10,7 @@ import { AllResultsPage } from '../pages/AllResultsPage';
 import { SearchPage } from '../pages/SearchPage';
 import { SettingsPage } from '../pages/SettingsPage';
 
-export default function App() {
+function AppInner() {
   const storageHook = useAppStorage();
   const navigate = useNavigate();
 
@@ -25,6 +27,7 @@ export default function App() {
           <li><NavLink to="/search" className={({ isActive }) => `app-nav__link${isActive ? ' active' : ''}`}>Пошук</NavLink></li>
           <li><NavLink to="/settings" className={({ isActive }) => `app-nav__link${isActive ? ' active' : ''}`}>Налаштування</NavLink></li>
         </ul>
+        <ThemeToggle />
       </nav>
 
       <main className="app-main" id="main-content">
@@ -41,5 +44,13 @@ export default function App() {
         </Routes>
       </main>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
   );
 }

@@ -8,3 +8,4 @@ export { FoodAssessmentCard } from './FoodAssessmentCard';
 export { FoodSearch } from './FoodSearch';
 export { SessionComplete } from './SessionComplete';
 export { BlockBreak } from './BlockBreak';
+export { ThemeToggle } from './ThemeToggle';

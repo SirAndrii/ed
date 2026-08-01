@@ -10,6 +10,7 @@ export interface Category {
   nameUk: string;
   description: string;
   icon: string;
+  kawaiiIcon?: string;
   isCustom?: boolean;
 }
 

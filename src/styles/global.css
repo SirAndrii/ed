@@ -1,5 +1,6 @@
-/* ===== CSS Custom Properties ===== */
-:root {
+/* ===== CSS Custom Properties — Anime theme (default) ===== */
+:root,
+[data-theme="anime"] {
   --color-bg: #faf8f5;
   --color-surface: #ffffff;
   --color-border: #e8e2d9;
@@ -25,6 +26,45 @@
   --radius-lg: 16px;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --nav-bg: var(--color-surface);
+  --body-pattern: none;
+  --body-pattern-size: 24px 24px;
+  --card-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* ===== CSS Custom Properties — Kawaii theme ===== */
+[data-theme="kawaii"] {
+  --color-bg: #fff0f7;
+  --color-surface: #fffbfd;
+  --color-border: #ffc0dc;
+  --color-primary: #ff6ba8;
+  --color-primary-dark: #e0507f;
+  --color-primary-soft: #ffe0ef;
+  --color-text: #4a1030;
+  --color-text-secondary: #a05070;
+  --color-text-tertiary: #d090b0;
+
+  --color-low: #60c472;
+  --color-low-soft: #e2fbe8;
+  --color-medium: #ff9f5a;
+  --color-medium-soft: #fff3ea;
+  --color-high: #ff6ba8;
+  --color-high-soft: #ffe0ef;
+
+  --color-tag-bg: #ffd6eb;
+  --color-tag-text: #c03070;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --nav-bg: linear-gradient(135deg, #ffcce8 0%, #e8d5ff 100%);
+  --body-pattern: radial-gradient(circle, #ffb3d4 1.5px, transparent 1.5px);
+  --body-pattern-size: 22px 22px;
+  --card-shadow: 0 4px 20px rgba(255, 107, 168, 0.12);
 }
 
 /* ===== Reset ===== */
@@ -41,10 +81,17 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  background-image: var(--body-pattern);
+  background-size: var(--body-pattern-size);
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { transition: none; }
 }
 
 img, svg { display: block; max-width: 100%; }
@@ -64,7 +111,7 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .app-nav {
-  background: var(--color-surface);
+  background: var(--nav-bg);
   border-bottom: 1px solid var(--color-border);
   padding: 0 1rem;
   display: flex;

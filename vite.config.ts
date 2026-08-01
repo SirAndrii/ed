@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/food-assessment/',
+  base: '/ed/',
   test: {
     globals: true,
     environment: 'jsdom',
