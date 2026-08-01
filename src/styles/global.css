@@ -183,6 +183,24 @@ img, svg { display: block; max-width: 100%; }
   background: var(--color-primary-soft);
 }
 
+.app-nav__game-cat {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 28px;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.app-nav__game-cat img {
+  position: absolute;
+  top: -36px;
+  left: -46px;
+  width: 136px;
+  max-width: none;
+  image-rendering: pixelated;
+}
+
 @media (max-width: 480px) {
   .app-nav__links { display: none; }
   .app-nav__game-label { display: none; }

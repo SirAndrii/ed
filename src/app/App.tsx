@@ -38,7 +38,9 @@ function AppInner() {
             aria-label="Запустити гру Nyan Cat: Lost In Space"
             title="Запустити мінігру"
           >
-            <span aria-hidden="true">🚀</span>
+            <span className="app-nav__game-cat" aria-hidden="true">
+              <img src={`${import.meta.env.BASE_URL}game/nyan-cat.png`} alt="" />
+            </span>
             <span className="app-nav__game-label">Гра</span>
           </button>
           {background && (

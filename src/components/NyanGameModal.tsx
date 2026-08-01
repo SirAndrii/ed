@@ -16,6 +16,7 @@ type FoodDefinition = {
   name: string;
   icon: string;
   points: number;
+  extraLife?: boolean;
 };
 
 type FoodEntity = Entity & { food: FoodDefinition };
@@ -29,6 +30,23 @@ const FOODS: FoodDefinition[] = [
   { name: 'Бургер', icon: 'hamburger-1', points: 35 },
   { name: 'Торт', icon: 'shortcake-1', points: 50 },
 ];
+
+const LIFE_FISH: FoodDefinition = {
+  name: 'Рибка життя',
+  icon: 'tropical-fish',
+  points: 0,
+  extraLife: true,
+};
+
+export function applyCollectibleReward(
+  lives: number,
+  score: number,
+  collectible: Pick<FoodDefinition, 'points' | 'extraLife'>
+) {
+  return collectible.extraLife
+    ? { lives: Math.min(3, lives + 1), score }
+    : { lives, score: score + collectible.points };
+}
 
 type GameState = {
   catY: number;
@@ -81,6 +99,57 @@ function overlaps(catY: number, entity: Entity): boolean {
     cat.y < entity.y + entity.size &&
     cat.y + cat.height > entity.y
   );
+}
+
+function duckMusic(music: HTMLAudioElement | null, duration: number) {
+  if (!music || music.paused) return;
+  music.volume = 0.04;
+  window.setTimeout(() => {
+    music.volume = 0.28;
+  }, duration);
+}
+
+function playRecordedMeow(meow: HTMLAudioElement | null, music: HTMLAudioElement | null) {
+  if (!meow) return;
+  duckMusic(music, 900);
+  meow.currentTime = 0;
+  meow.volume = 1;
+  void meow.play().catch(() => undefined);
+}
+
+function playCrash(audioContext: AudioContext | null, music: HTMLAudioElement | null) {
+  if (!audioContext || audioContext.state === 'closed') return;
+  const now = audioContext.currentTime;
+  const gain = audioContext.createGain();
+  const filter = audioContext.createBiquadFilter();
+  const impact = audioContext.createOscillator();
+  const noise = audioContext.createBufferSource();
+  const noiseBuffer = audioContext.createBuffer(1, Math.ceil(audioContext.sampleRate * 0.24), audioContext.sampleRate);
+  const noiseData = noiseBuffer.getChannelData(0);
+  for (let index = 0; index < noiseData.length; index += 1) {
+    noiseData[index] = (Math.random() * 2 - 1) * (1 - index / noiseData.length);
+  }
+  noise.buffer = noiseBuffer;
+
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(900, now);
+  filter.frequency.exponentialRampToValueAtTime(120, now + 0.3);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.38, now + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
+
+  impact.type = 'square';
+  impact.frequency.setValueAtTime(170, now);
+  impact.frequency.exponentialRampToValueAtTime(42, now + 0.34);
+  impact.connect(filter);
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioContext.destination);
+  impact.start(now);
+  noise.start(now);
+  impact.stop(now + 0.35);
+  noise.stop(now + 0.25);
+  duckMusic(music, 450);
 }
 
 function drawCat(
@@ -136,7 +205,11 @@ function drawGame(
     context.fillStyle = '#ffffff';
     context.font = 'bold 13px system-ui';
     context.textAlign = 'center';
-    context.fillText(`+${treat.food.points}`, treat.x + treat.size / 2, treat.y - 5);
+    context.fillText(
+      treat.food.extraLife ? '+1 ♥' : `+${treat.food.points}`,
+      treat.x + treat.size / 2,
+      treat.y - 5
+    );
   }
 
   for (const obstacle of game.obstacles) {
@@ -158,6 +231,8 @@ export function NyanGameModal({ onClose }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const meowRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const catImageRef = useRef<HTMLImageElement | null>(null);
   const foodImagesRef = useRef(new Map<string, HTMLImageElement>());
   const gameRef = useRef<GameState>(createGame());
@@ -187,6 +262,11 @@ export function NyanGameModal({ onClose }: Props) {
     setLives(3);
     setStatus('playing');
     canvasRef.current?.focus();
+    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+      audioContextRef.current = new AudioContext();
+    }
+    if (audioContextRef.current.state === 'suspended') void audioContextRef.current.resume();
+    if (audioRef.current) audioRef.current.volume = 0.28;
     void audioRef.current?.play().then(() => setMusicPlaying(true)).catch(() => setMusicPlaying(false));
   }, []);
 
@@ -205,11 +285,16 @@ export function NyanGameModal({ onClose }: Props) {
     const catImage = new Image();
     catImage.src = `${base}game/nyan-cat.png`;
     catImageRef.current = catImage;
-    for (const food of FOODS) {
+    for (const food of [...FOODS, LIFE_FISH]) {
       const image = new Image();
       image.src = `${base}game/${food.icon}.svg`;
       foodImagesRef.current.set(food.icon, image);
     }
+  }, []);
+
+  useEffect(() => () => {
+    const audioContext = audioContextRef.current;
+    if (audioContext && audioContext.state !== 'closed') void audioContext.close();
   }, []);
 
   useEffect(() => {
@@ -261,7 +346,9 @@ export function NyanGameModal({ onClose }: Props) {
           game.obstacleTimer = Math.max(0.75, 1.6 - game.elapsed / 45);
         }
         if (game.treatTimer <= 0) {
-          const food = FOODS[Math.floor(Math.random() * FOODS.length)];
+          const food = Math.random() < 0.08
+            ? LIFE_FISH
+            : FOODS[Math.floor(Math.random() * FOODS.length)];
           game.treats.push({ x: WIDTH + 48, y: 36 + Math.random() * (HEIGHT - 100), size: 44, speed: 190, food });
           game.treatTimer = 1.25 + Math.random() * 1.2;
         }
@@ -273,7 +360,11 @@ export function NyanGameModal({ onClose }: Props) {
         game.obstacles = game.obstacles.filter((entity) => entity.x > -entity.size);
         game.treats = game.treats.filter((entity) => {
           if (overlaps(game.catY, entity)) {
-            game.score += entity.food.points;
+            const reward = applyCollectibleReward(game.lives, game.score, entity.food);
+            game.lives = reward.lives;
+            game.score = reward.score;
+            if (entity.food.extraLife) setLives(game.lives);
+            if (entity.food.icon === 'shortcake-1') playRecordedMeow(meowRef.current, audioRef.current);
             return false;
           }
           return entity.x > -entity.size;
@@ -283,6 +374,7 @@ export function NyanGameModal({ onClose }: Props) {
           const hitIndex = game.obstacles.findIndex((entity) => overlaps(game.catY, entity));
           if (hitIndex >= 0) {
             game.obstacles.splice(hitIndex, 1);
+            playCrash(audioContextRef.current, audioRef.current);
             game.lives -= 1;
             game.invulnerableUntil = time + 1200;
             setLives(game.lives);
@@ -339,6 +431,7 @@ export function NyanGameModal({ onClose }: Props) {
         </div>
 
         <audio ref={audioRef} src={`${import.meta.env.BASE_URL}audio/nyan-cat-short-loop.mp3`} loop preload="auto" />
+        <audio ref={meowRef} src={`${import.meta.env.BASE_URL}audio/cat-meow.ogg`} preload="auto" />
 
         <div className={styles.stage}>
           <canvas
@@ -366,9 +459,9 @@ export function NyanGameModal({ onClose }: Props) {
           <button onClick={() => move(1)} disabled={status !== 'playing'}>↓ Вниз</button>
         </div>
 
-        <p className={styles.help}>7 видів їжі дають від 10 до 50 балів. Уникайте астероїдів і протримайтеся якомога довше.</p>
+        <p className={styles.help}>7 видів їжі дають від 10 до 50 балів, а рідкісна рибка відновлює одне життя. Уникайте астероїдів і протримайтеся якомога довше.</p>
         <p className={styles.credits}>
-          Музика: <a href="https://www.newgrounds.com/audio/listen/765452" target="_blank" rel="noreferrer">Nyan Cat (Short loop) — mutty99</a>, CC BY-NC-ND 3.0. Іконки їжі: Streamline Emojis, CC BY 4.0.
+          Музика: <a href="https://www.newgrounds.com/audio/listen/765452" target="_blank" rel="noreferrer">Nyan Cat (Short loop) — mutty99</a>, CC BY-NC-ND 3.0. Мяу: <a href="https://commons.wikimedia.org/wiki/File:Meow.ogg" target="_blank" rel="noreferrer">Dan Crosby</a>, CC BY-SA 3.0. Іконки їжі: Streamline Emojis, CC BY 4.0.
         </p>
       </section>
     </div>

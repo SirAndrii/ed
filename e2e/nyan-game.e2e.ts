@@ -10,7 +10,9 @@ test('відкриває, запускає та закриває демо Nyan C
 
   await dialog.getByRole('button', { name: 'Почати гру' }).click();
   await expect(dialog.getByText(/Рахунок:/)).toBeVisible();
-  await expect.poll(() => dialog.locator('audio').evaluate((audio: HTMLAudioElement) => audio.readyState))
+  await expect.poll(() => dialog.locator('audio[src*="nyan-cat-short-loop"]').evaluate((audio: HTMLAudioElement) => audio.readyState))
+    .toBeGreaterThanOrEqual(2);
+  await expect.poll(() => dialog.locator('audio[src*="cat-meow"]').evaluate((audio: HTMLAudioElement) => audio.readyState))
     .toBeGreaterThanOrEqual(2);
   await dialog.getByLabel(/Ігрове поле/).click();
   await dialog.getByRole('button', { name: 'Вниз' }).click();
