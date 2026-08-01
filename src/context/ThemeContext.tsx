@@ -23,7 +23,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'anime',
+  theme: 'kawaii',
   setTheme: () => {},
   background: null,
   reshuffleBackground: () => {},
@@ -39,11 +39,11 @@ function pickForTheme(theme: Theme): AppBackground | null {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem(THEME_KEY);
-    return saved === 'kawaii' ? 'kawaii' : 'anime';
+    return saved === 'anime' ? 'anime' : 'kawaii';
   });
 
   const [background, setBackground] = useState<AppBackground | null>(
-    () => pickForTheme(localStorage.getItem(THEME_KEY) === 'kawaii' ? 'kawaii' : 'anime')
+    () => pickForTheme(localStorage.getItem(THEME_KEY) === 'anime' ? 'anime' : 'kawaii')
   );
 
   const [advanceTick, setAdvanceTick] = useState(0);

@@ -36,7 +36,7 @@
 /* ===== CSS Custom Properties — Kawaii theme ===== */
 [data-theme="kawaii"] {
   --color-bg: #fff0f7;
-  --color-surface: #fffbfd;
+  --color-surface: rgba(255, 251, 253, 0.5);
   --color-border: #ffc0dc;
   --color-primary: #ff6ba8;
   --color-primary-dark: #e0507f;
@@ -206,6 +206,11 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .btn-primary:hover { background: var(--color-primary-dark); }
+
+[data-theme="kawaii"] .btn-primary,
+[data-theme="kawaii"] .btn-secondary {
+  opacity: 0.9;
+}
 
 .btn-secondary {
   display: inline-flex;
