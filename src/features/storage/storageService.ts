@@ -15,15 +15,30 @@ const DEFAULT_STORAGE: AppStorage = {
   },
 };
 
+function defaultStorage(): AppStorage {
+  return {
+    schemaVersion: 1,
+    assessments: {},
+    customFoods: [],
+    categoryProgress: {},
+    lastActiveCategoryId: null,
+    preferences: {
+      reducedMotion: false,
+      showStoreTags: true,
+      reportName: '',
+    },
+  };
+}
+
 export function loadAppStorage(): AppStorage {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...DEFAULT_STORAGE };
+    if (!raw) return defaultStorage();
     const parsed: unknown = JSON.parse(raw);
-    if (!isValidStorage(parsed)) return { ...DEFAULT_STORAGE };
+    if (!isValidStorage(parsed)) return defaultStorage();
     return parsed as AppStorage;
   } catch {
-    return { ...DEFAULT_STORAGE };
+    return defaultStorage();
   }
 }
 

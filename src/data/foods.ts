@@ -817,7 +817,7 @@ export const FOODS: FoodItem[] = [
     id: 'sour-cream',
     nameUk: 'Сметана',
     nameEn: 'Sour cream',
-    aliases: ['сметана', 'sour cream', 'сметанка'],
+    aliases: ['сметана', 'smetana', 'sour cream', 'сметанка'],
     categoryId: 'dairy',
     storeTags: ['heb', 'phoenicia', 'eastern-european'],
     keywords: ['молочний', 'dairy'],
