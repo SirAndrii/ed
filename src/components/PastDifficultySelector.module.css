@@ -1,0 +1,57 @@
+.fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.hint {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  margin-top: 0.2rem;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border);
+  cursor: pointer;
+  background: var(--color-surface);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option { transition: none; }
+}
+
+.option:hover { border-color: var(--color-primary); }
+.option.selected { border-color: var(--color-primary); background: var(--color-primary-soft); }
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
