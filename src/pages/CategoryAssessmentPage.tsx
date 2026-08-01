@@ -150,7 +150,7 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
           assessment={pastAssessment}
           onSelect={handlePastSelect}
           onBack={() => { if (pastIndex > 0) setPastIndex(pastIndex - 1); }}
-          onSaveExit={() => onNavigate('/')}
+          onExit={() => onNavigate('/')}
           isFirst={pastIndex === 0}
         />
       </div>
@@ -247,7 +247,7 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
         showStoreTags={storage.preferences.showStoreTags}
         onSelect={updateAndAdvance}
         onBack={goBack}
-        onSaveExit={() => onNavigate('/')}
+        onExit={() => onNavigate('/')}
         isFirst={currentIndex === 0}
       />
     </div>

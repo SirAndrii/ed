@@ -25,7 +25,7 @@ interface Props {
   /** Called immediately on click — saves and auto-advances */
   onSelect: (value: PastDifficultyLevel) => void;
   onBack: () => void;
-  onSaveExit: () => void;
+  onExit: () => void;
   isFirst: boolean;
 }
 
@@ -34,7 +34,7 @@ export function PastAssessmentCard({
   assessment,
   onSelect,
   onBack,
-  onSaveExit,
+  onExit,
   isFirst,
 }: Props) {
   const past = assessment?.oneYearAgo ?? null;
@@ -90,9 +90,10 @@ export function PastAssessmentCard({
         </button>
         <button
           className={styles.btnGhost}
-          onClick={onSaveExit}
+          onClick={onExit}
+          aria-label="Вийти з опитування за минулий рік"
         >
-          Зберегти й вийти
+          Вийти
         </button>
       </div>
     </div>

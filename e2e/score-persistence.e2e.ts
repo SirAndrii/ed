@@ -21,6 +21,9 @@ test('варіанти нейтральні до кліку, а Назад ві�
   await expect(page.getByRole('button', { name: /Низька складність/ }))
     .toHaveAttribute('aria-pressed', 'false');
 
+  // Reload first so the Back action must restore the previous answer from localStorage.
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Банан' })).toBeVisible();
   await page.getByRole('button', { name: 'Назад до попереднього продукту' }).click();
   await expect(page.getByRole('heading', { name: 'Яблуко' })).toBeVisible();
 
@@ -36,7 +39,7 @@ test('відновлює прогрес категорії та оцінку в 
   await page.getByRole('button', { name: /Низька складність/ }).click();
   await expect(page.getByRole('heading', { name: 'Банан' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Зберегти і вийти' }).click();
+  await page.getByRole('button', { name: 'Вийти з опитування' }).click();
   await page.getByRole('link', { name: 'Категорії' }).click();
   await expect(page.getByLabel(/Оцінено 1 з/)).toBeVisible();
 

@@ -17,7 +17,7 @@ interface Props {
   /** Called immediately on click — saves to localStorage and auto-advances */
   onSelect: (value: DifficultyLevel) => void;
   onBack: () => void;
-  onSaveExit: () => void;
+  onExit: () => void;
   isFirst: boolean;
 }
 
@@ -27,7 +27,7 @@ export function FoodAssessmentCard({
   showStoreTags,
   onSelect,
   onBack,
-  onSaveExit,
+  onExit,
   isFirst,
 }: Props) {
   const current = assessment?.current ?? null;
@@ -77,10 +77,10 @@ export function FoodAssessmentCard({
         </button>
         <button
           className={styles.btnGhost}
-          onClick={onSaveExit}
-          aria-label="Зберегти і вийти"
+          onClick={onExit}
+          aria-label="Вийти з опитування"
         >
-          Зберегти й вийти
+          Вийти
         </button>
       </div>
     </div>
