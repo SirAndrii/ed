@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { AppStorage, FoodAssessment, CategoryProgress } from '../types';
 import {
   loadAppStorage,
@@ -13,61 +13,70 @@ import type { FoodItem } from '../types';
 
 export function useAppStorage() {
   const [storage, setStorage] = useState<AppStorage>(() => loadAppStorage());
+  const storageRef = useRef(storage);
 
-  const persist = useCallback((updated: AppStorage) => {
+  const persist = useCallback((update: (current: AppStorage) => AppStorage) => {
+    const updated = update(storageRef.current);
+    storageRef.current = updated;
     saveAppStorage(updated);
     setStorage(updated);
   }, []);
 
   const setAssessment = useCallback(
     (assessment: FoodAssessment) => {
-      const updated = {
-        ...storage,
+      persist((current) => ({
+        ...current,
         assessments: {
-          ...storage.assessments,
+          ...current.assessments,
           [assessment.foodId]: assessment,
         },
-      };
-      persist(updated);
+      }));
     },
-    [storage, persist]
+    [persist]
   );
 
   const setCategoryProgress = useCallback(
     (progress: CategoryProgress) => {
-      const updated = {
-        ...storage,
-        categoryProgress: {
-          ...storage.categoryProgress,
-          [progress.categoryId]: progress,
-        },
-        lastActiveCategoryId: progress.categoryId,
-      };
-      persist(updated);
+      persist((current) => {
+        const savedProgress = current.categoryProgress[progress.categoryId];
+        return {
+          ...current,
+          categoryProgress: {
+            ...current.categoryProgress,
+            [progress.categoryId]: {
+              ...savedProgress,
+              ...progress,
+              assessedFoodIds: Array.from(new Set([
+                ...(savedProgress?.assessedFoodIds ?? []),
+                ...progress.assessedFoodIds,
+              ])),
+            },
+          },
+          lastActiveCategoryId: progress.categoryId,
+        };
+      });
     },
-    [storage, persist]
+    [persist]
   );
 
   const addCustomFood = useCallback(
     (food: FoodItem) => {
-      const updated = {
-        ...storage,
-        customFoods: [...storage.customFoods, food],
-      };
-      persist(updated);
+      persist((current) => ({
+        ...current,
+        customFoods: [...current.customFoods, food],
+      }));
     },
-    [storage, persist]
+    [persist]
   );
 
   const updatePreferences = useCallback(
     (prefs: Partial<AppStorage['preferences']>) => {
-      const updated = {
-        ...storage,
-        preferences: { ...storage.preferences, ...prefs },
-      };
-      persist(updated);
+      persist((current) => ({
+        ...current,
+        preferences: { ...current.preferences, ...prefs },
+      }));
     },
-    [storage, persist]
+    [persist]
   );
 
   const enablePastSurvey = useCallback(
@@ -75,24 +84,24 @@ export function useAppStorage() {
       const now = new Date();
       const oneYearAgo = new Date(now);
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      const updated = {
-        ...storage,
+      persist((current) => ({
+        ...current,
         pastSurveySession: enabled
-          ? (storage.pastSurveySession ?? {
+          ? (current.pastSurveySession ?? {
               enabledAt: now.toISOString(),
               referenceDate: oneYearAgo.toISOString(),
             })
           : null,
-        preferences: { ...storage.preferences, enablePastSurvey: enabled },
-      };
-      persist(updated);
+        preferences: { ...current.preferences, enablePastSurvey: enabled },
+      }));
     },
-    [storage, persist]
+    [persist]
   );
 
   const handleReset = useCallback(() => {
     resetAppStorage();
     const fresh = loadAppStorage();
+    storageRef.current = fresh;
     setStorage(fresh);
   }, []);
 
@@ -103,6 +112,7 @@ export function useAppStorage() {
   const handleImport = useCallback(
     async (file: File) => {
       const imported = await importAppStorage(file);
+      storageRef.current = imported;
       setStorage(imported);
     },
     []
@@ -116,6 +126,7 @@ export function useAppStorage() {
     (categoryId: string, foodIds: string[]) => {
       resetCategory(categoryId, foodIds);
       const fresh = loadAppStorage();
+      storageRef.current = fresh;
       setStorage(fresh);
     },
     []

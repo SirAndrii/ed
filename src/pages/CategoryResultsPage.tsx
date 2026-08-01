@@ -4,6 +4,7 @@ import type { NavigateFunction } from 'react-router-dom';
 import type { DifficultyLevel, FoodAssessment } from '../types';
 import { FOODS, getCategoryById } from '../data';
 import type { useAppStorage } from '../hooks/useAppStorage';
+import { changeLabel } from '../utils/changeLabel';
 import styles from './CategoryResultsPage.module.css';
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -26,18 +27,6 @@ const PAST_LABELS: Record<string, string> = {
   'dont-remember': 'Не пам\'ятаю',
 };
 
-function changeLabel(current: string | null, past: string | null): string {
-  if (!current || !past || past === 'dont-remember' || past === 'not-eaten-then' || past === 'skipped') {
-    return 'Недостатньо даних для порівняння';
-  }
-  const order: Record<string, number> = { low: 0, medium: 1, high: 2 };
-  const c = order[current] ?? -1;
-  const p = order[past] ?? -1;
-  if (c === -1 || p === -1) return 'Недостатньо даних для порівняння';
-  if (c < p) return 'Стало менш складно';
-  if (c > p) return 'Стало складніше';
-  return 'Без помітної зміни';
-}
 
 type Filter = 'all' | DifficultyLevel | 'unassessed';
 type ViewMode = 'list' | 'groups';
