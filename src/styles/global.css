@@ -163,8 +163,29 @@ img, svg { display: block; max-width: 100%; }
   color: var(--color-primary);
 }
 
+.app-nav__game-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 36px;
+  padding: 0.35rem 0.65rem;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface) 75%, transparent);
+  color: var(--color-primary);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-nav__game-button:hover {
+  background: var(--color-primary-soft);
+}
+
 @media (max-width: 480px) {
   .app-nav__links { display: none; }
+  .app-nav__game-label { display: none; }
 }
 
 .app-main {

@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import { useAppStorage } from '../hooks/useAppStorage';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { NyanGameModal } from '../components/NyanGameModal';
 import { WelcomePage } from '../pages/WelcomePage';
 import { CategoriesPage } from '../pages/CategoriesPage';
 import { CategoryAssessmentPage } from '../pages/CategoryAssessmentPage';
@@ -14,6 +16,7 @@ function AppInner() {
   const storageHook = useAppStorage();
   const navigate = useNavigate();
   const { theme, background, reshuffleBackground } = useTheme();
+  const [showGame, setShowGame] = useState(false);
 
   return (
     <>
@@ -29,6 +32,15 @@ function AppInner() {
           <li><NavLink to="/settings" className={({ isActive }) => `app-nav__link${isActive ? ' active' : ''}`}>Налаштування</NavLink></li>
         </ul>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            className="app-nav__game-button"
+            onClick={() => setShowGame(true)}
+            aria-label="Запустити гру Nyan Cat: Lost In Space"
+            title="Запустити мінігру"
+          >
+            <span aria-hidden="true">🚀</span>
+            <span className="app-nav__game-label">Гра</span>
+          </button>
           {background && (
             <button
               onClick={reshuffleBackground}
@@ -63,6 +75,7 @@ function AppInner() {
           <Route path="*" element={<WelcomePage storage={storageHook.storage} onNavigate={navigate} />} />
         </Routes>
       </main>
+      {showGame && <NyanGameModal onClose={() => setShowGame(false)} />}
     </>
   );
 }
