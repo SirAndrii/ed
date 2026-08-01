@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import type { NavigateFunction } from 'react-router-dom';
 import type { DifficultyLevel, PastDifficultyLevel, FoodAssessment } from '../types';
-import { FOODS, CATEGORIES, getCategoryById } from '../data';
+import { FOODS, getCategoryById } from '../data';
 import { CategoryProgress, FoodAssessmentCard, BlockBreak, SessionComplete } from '../components';
 import type { useAppStorage } from '../hooks/useAppStorage';
 import styles from './CategoryAssessmentPage.module.css';
@@ -18,7 +18,7 @@ interface Props {
 
 export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
   const { categoryId } = useParams<{ categoryId: string }>();
-  const { storage, setAssessment, setCategoryProgress, handleExportCategory } = storageHook;
+  const { storage, setAssessment, setCategoryProgress } = storageHook;
 
   const category = getCategoryById(categoryId ?? '');
   const allFoods = categoryId
@@ -67,7 +67,6 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
   const food = allFoods[currentIndex];
   const assessment = food ? storage.assessments[food.id] ?? null : null;
   const total = allFoods.length;
-  const progress = storage.categoryProgress[categoryId];
 
   if (stage === 'complete') {
     return (

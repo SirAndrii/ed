@@ -2,19 +2,6 @@ import type { AppStorage } from '../../types';
 
 export const STORAGE_KEY = 'food-assessment-v1';
 
-const DEFAULT_STORAGE: AppStorage = {
-  schemaVersion: 1,
-  assessments: {},
-  customFoods: [],
-  categoryProgress: {},
-  lastActiveCategoryId: null,
-  preferences: {
-    reducedMotion: false,
-    showStoreTags: true,
-    reportName: '',
-  },
-};
-
 function defaultStorage(): AppStorage {
   return {
     schemaVersion: 1,
@@ -92,7 +79,7 @@ export function exportCategory(categoryId: string): void {
   const categoryExport = {
     categoryId,
     assessments: Object.fromEntries(
-      Object.entries(data.assessments).filter(([, v]) => {
+      Object.entries(data.assessments).filter(() => {
         // We need food data to filter by category, so export all assessments for category
         // The consumer will filter; for now export with categoryId marker
         return true;

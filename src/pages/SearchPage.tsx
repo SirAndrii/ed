@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 import type { FoodItem } from '../types';
-import { FOODS, getCategoryById } from '../data';
+import { FOODS } from '../data';
 import { FoodSearch } from '../components';
 import type { useAppStorage } from '../hooks/useAppStorage';
 import styles from './SearchPage.module.css';
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function SearchPage({ storageHook, onNavigate }: Props) {
-  const { storage, addCustomFood, setAssessment } = storageHook;
+  const { storage, addCustomFood } = storageHook;
   const [showAddForm, setShowAddForm] = useState(false);
   const [customName, setCustomName] = useState('');
   const [customNameEn, setCustomNameEn] = useState('');

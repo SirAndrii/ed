@@ -1,14 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { searchFoods } from '../features/search/searchService';
 import {
   loadAppStorage,
   saveAppStorage,
-  resetAppStorage,
   STORAGE_KEY,
 } from '../features/storage/storageService';
 import { FOODS } from '../data/foods';
 import type { FoodItem } from '../types/food';
-import type { AppStorage } from '../types/storage';
 
 // ===== Test 1: Search normalization =====
 describe('searchFoods normalization', () => {

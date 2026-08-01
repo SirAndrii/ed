@@ -58,7 +58,7 @@ interface Props {
 
 export function CategoryResultsPage({ storageHook, mode, onNavigate }: Props) {
   const { categoryId } = useParams<{ categoryId: string }>();
-  const { storage, setAssessment, handleExportCategory } = storageHook;
+  const { storage, handleExportCategory } = storageHook;
   const [filter, setFilter] = useState<Filter>('all');
 
   const category = getCategoryById(categoryId ?? '');
