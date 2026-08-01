@@ -70,6 +70,26 @@ export function useAppStorage() {
     [storage, persist]
   );
 
+  const enablePastSurvey = useCallback(
+    (enabled: boolean) => {
+      const now = new Date();
+      const oneYearAgo = new Date(now);
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      const updated = {
+        ...storage,
+        pastSurveySession: enabled
+          ? (storage.pastSurveySession ?? {
+              enabledAt: now.toISOString(),
+              referenceDate: oneYearAgo.toISOString(),
+            })
+          : null,
+        preferences: { ...storage.preferences, enablePastSurvey: enabled },
+      };
+      persist(updated);
+    },
+    [storage, persist]
+  );
+
   const handleReset = useCallback(() => {
     resetAppStorage();
     const fresh = loadAppStorage();
@@ -107,6 +127,7 @@ export function useAppStorage() {
     setCategoryProgress,
     addCustomFood,
     updatePreferences,
+    enablePastSurvey,
     handleReset,
     handleExport,
     handleImport,

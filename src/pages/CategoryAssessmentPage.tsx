@@ -88,7 +88,7 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
         onBackToCategories={() => onNavigate('/categories')}
         onFinishForToday={() => onNavigate('/')}
         onChooseAnother={() => onNavigate('/categories')}
-        onStartPastSurvey={() => { setPastIndex(0); setStage('past-survey'); }}
+        onStartPastSurvey={storage.preferences.enablePastSurvey ? () => { setPastIndex(0); setStage('past-survey'); } : undefined}
       />
     );
   }
@@ -241,6 +241,7 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
       />
 
       <FoodAssessmentCard
+        key={food.id}
         food={food}
         assessment={assessment}
         showStoreTags={storage.preferences.showStoreTags}

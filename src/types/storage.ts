@@ -8,9 +8,15 @@ export interface AppStorage {
   customFoods: FoodItem[];
   categoryProgress: Record<string, CategoryProgress>;
   lastActiveCategoryId: string | null;
+  /** Created the first time user enables the year-ago survey */
+  pastSurveySession: {
+    enabledAt: string;       // when user turned the feature on
+    referenceDate: string;   // ≈ one year before enabledAt
+  } | null;
   preferences: {
     reducedMotion: boolean;
     showStoreTags: boolean;
     reportName: string;
+    enablePastSurvey: boolean;
   };
 }

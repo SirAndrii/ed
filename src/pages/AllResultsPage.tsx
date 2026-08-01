@@ -76,7 +76,6 @@ export function AllResultsPage({ storage, onNavigate }: Props) {
           <ul className={styles.list} role="list">
             {categoriesWithProgress.map((cat) => {
               const status = cat.progress?.status ?? 'not-started';
-              const hasResults = status !== 'not-started';
               return (
                 <li key={cat.id} className={styles.item}>
                   <span className={styles.icon} aria-hidden="true">{cat.icon}</span>
@@ -84,15 +83,13 @@ export function AllResultsPage({ storage, onNavigate }: Props) {
                   <span className={`${styles.status} ${styles[status.replace('-', '_')]}`}>
                     {STATUS_LABELS[status]}
                   </span>
-                  {hasResults && (
-                    <button
-                      className={styles.viewBtn}
-                      onClick={() => onNavigate(`/results/${cat.id}`)}
-                      aria-label={`Переглянути результати: ${cat.nameUk}`}
-                    >
-                      Переглянути
-                    </button>
-                  )}
+                  <button
+                    className={styles.viewBtn}
+                    onClick={() => onNavigate(`/results/${cat.id}`)}
+                    aria-label={`Переглянути результати: ${cat.nameUk}`}
+                  >
+                    Переглянути
+                  </button>
                 </li>
               );
             })}

@@ -9,10 +9,12 @@ function defaultStorage(): AppStorage {
     customFoods: [],
     categoryProgress: {},
     lastActiveCategoryId: null,
+    pastSurveySession: null,
     preferences: {
       reducedMotion: false,
       showStoreTags: true,
       reportName: '',
+      enablePastSurvey: false,
     },
   };
 }
@@ -23,7 +25,13 @@ export function loadAppStorage(): AppStorage {
     if (!raw) return defaultStorage();
     const parsed: unknown = JSON.parse(raw);
     if (!isValidStorage(parsed)) return defaultStorage();
-    return parsed as AppStorage;
+    // Merge with defaults so new fields always have values on old data
+    const loaded = parsed as AppStorage;
+    return {
+      ...defaultStorage(),
+      ...loaded,
+      preferences: { ...defaultStorage().preferences, ...loaded.preferences },
+    };
   } catch {
     return defaultStorage();
   }

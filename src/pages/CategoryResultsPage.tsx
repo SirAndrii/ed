@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { NavigateFunction } from 'react-router-dom';
-import type { DifficultyLevel } from '../types';
+import type { DifficultyLevel, FoodAssessment } from '../types';
 import { FOODS, getCategoryById } from '../data';
 import type { useAppStorage } from '../hooks/useAppStorage';
 import styles from './CategoryResultsPage.module.css';
@@ -68,6 +68,7 @@ export function CategoryResultsPage({ storageHook, mode, onNavigate }: Props) {
   const { storage, handleExportCategory } = storageHook;
   const [filter, setFilter] = useState<Filter>('all');
   const [view, setView] = useState<ViewMode>('groups');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const category = getCategoryById(categoryId ?? '');
   const foods = categoryId
@@ -242,13 +243,39 @@ export function CategoryResultsPage({ storageHook, mode, onNavigate }: Props) {
                       <span className={styles.change}>{change}</span>
                     )}
                   </div>
-                  <button
-                    className={`${styles.editBtn} no-print`}
-                    onClick={() => onNavigate(`/assess/${categoryId}`)}
-                    aria-label={`Змінити оцінку для ${food.nameUk}`}
-                  >
-                    Змінити
-                  </button>
+                  <div className={`${styles.editWrap} no-print`}>
+                    {editingId === food.id ? (
+                      <div className={styles.editDropdown} role="group" aria-label={`Змінити оцінку: ${food.nameUk}`}>
+                        {(['low','medium','high','unsure','unfamiliar'] as DifficultyLevel[]).map((val) => (
+                          <button
+                            key={val}
+                            className={`${styles.editOption} ${styles[val]} ${a?.current === val ? styles.editSelected : ''}`}
+                            onClick={() => {
+                              const updated: FoodAssessment = {
+                                foodId: food.id,
+                                current: val,
+                                oneYearAgo: a?.oneYearAgo ?? null,
+                                updatedAt: new Date().toISOString(),
+                              };
+                              storageHook.setAssessment(updated);
+                              setEditingId(null);
+                            }}
+                          >
+                            {DIFFICULTY_LABELS[val]}
+                          </button>
+                        ))}
+                        <button className={styles.editCancel} onClick={() => setEditingId(null)}>✕</button>
+                      </div>
+                    ) : (
+                      <button
+                        className={styles.editBtn}
+                        onClick={() => setEditingId(food.id)}
+                        aria-label={`Змінити оцінку для ${food.nameUk}`}
+                      >
+                        Змінити
+                      </button>
+                    )}
+                  </div>
                 </li>
               );
             })}

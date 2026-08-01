@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function SettingsPage({ storageHook }: Props) {
-  const { storage, updatePreferences, handleReset, handleExport, handleImport } = storageHook;
+  const { storage, updatePreferences, enablePastSurvey, handleReset, handleExport, handleImport } = storageHook;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImportClick = () => {
@@ -57,6 +57,24 @@ export function SettingsPage({ storageHook }: Props) {
           />
           <span>Зменшити анімації</span>
         </label>
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Опитування «рік тому»</h2>
+        <label className={styles.toggle}>
+          <input
+            type="checkbox"
+            checked={storage.preferences.enablePastSurvey}
+            onChange={(e) => enablePastSurvey(e.target.checked)}
+          />
+          <span>Запитувати про складність рік тому після кожної категорії</span>
+        </label>
+        {storage.pastSurveySession && (
+          <p className={styles.note}>
+            Увімкнено: {new Date(storage.pastSurveySession.enabledAt).toLocaleDateString('uk-UA')}.{' '}
+            Точка відліку «рік тому»: {new Date(storage.pastSurveySession.referenceDate).toLocaleDateString('uk-UA')}.
+          </p>
+        )}
       </section>
 
       <section className={styles.section}>
