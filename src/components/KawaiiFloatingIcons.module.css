@@ -1,0 +1,32 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.icon {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+  animation: kawaiiFloat var(--dur, 4s) ease-in-out var(--delay, 0s) infinite alternate;
+  transition: opacity 0.25s ease, left 0.5s ease, top 0.5s ease;
+}
+
+@keyframes kawaiiFloat {
+  from { transform: translateY(0)    rotate(-4deg) scale(1);    }
+  to   { transform: translateY(-12px) rotate(4deg) scale(1.06); }
+}
+
+/* On advance: icons spin + bounce before settling */
+.icon.burst {
+  animation: kawaiiBurst 0.35s ease-out forwards;
+}
+
+@keyframes kawaiiBurst {
+  0%   { transform: scale(1)   rotate(0deg);   }
+  40%  { transform: scale(1.6) rotate(15deg);  }
+  70%  { transform: scale(0.8) rotate(-8deg);  }
+  100% { transform: scale(1)   rotate(0deg);   }
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import type { NavigateFunction } from 'react-router-dom';
 import type { DifficultyLevel, PastDifficultyLevel, FoodAssessment } from '../types';
 import { FOODS, getCategoryById } from '../data';
@@ -20,6 +21,7 @@ interface Props {
 export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
   const { categoryId } = useParams<{ categoryId: string }>();
   const { storage, setAssessment, setCategoryProgress } = storageHook;
+  const { triggerAdvance } = useTheme();
 
   const category = getCategoryById(categoryId ?? '');
   const allFoods = categoryId
@@ -185,6 +187,7 @@ export function CategoryAssessmentPage({ storageHook, onNavigate }: Props) {
     }
 
     // 3. Advance after short delay (visual feedback)
+    triggerAdvance();
     setTimeout(() => {
       advancing.current = false;
       goNext();

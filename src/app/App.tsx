@@ -13,7 +13,7 @@ import { SettingsPage } from '../pages/SettingsPage';
 function AppInner() {
   const storageHook = useAppStorage();
   const navigate = useNavigate();
-  const { theme, reshuffleBackground } = useTheme();
+  const { theme, background, reshuffleBackground } = useTheme();
 
   return (
     <>
@@ -29,7 +29,7 @@ function AppInner() {
           <li><NavLink to="/settings" className={({ isActive }) => `app-nav__link${isActive ? ' active' : ''}`}>Налаштування</NavLink></li>
         </ul>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {theme === 'kawaii' && (
+          {background && (
             <button
               onClick={reshuffleBackground}
               title="Змінити фон"
