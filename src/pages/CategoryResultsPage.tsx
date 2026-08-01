@@ -40,6 +40,7 @@ function changeLabel(current: string | null, past: string | null): string {
 }
 
 type Filter = 'all' | DifficultyLevel | 'unassessed';
+type ViewMode = 'list' | 'groups';
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: 'all', label: 'Усі' },
@@ -48,6 +49,12 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: 'high', label: 'Висока' },
   { value: 'unsure', label: 'Не визначено' },
   { value: 'unassessed', label: 'Не оцінено' },
+];
+
+const GROUPS: { key: 'low' | 'medium' | 'high'; label: string; emoji: string }[] = [
+  { key: 'low',    label: 'Безпечні',  emoji: '✅' },
+  { key: 'medium', label: 'Середні',   emoji: '🟡' },
+  { key: 'high',   label: 'Складні',   emoji: '🔴' },
 ];
 
 interface Props {
@@ -60,6 +67,7 @@ export function CategoryResultsPage({ storageHook, mode, onNavigate }: Props) {
   const { categoryId } = useParams<{ categoryId: string }>();
   const { storage, handleExportCategory } = storageHook;
   const [filter, setFilter] = useState<Filter>('all');
+  const [view, setView] = useState<ViewMode>('groups');
 
   const category = getCategoryById(categoryId ?? '');
   const foods = categoryId
@@ -136,57 +144,117 @@ export function CategoryResultsPage({ storageHook, mode, onNavigate }: Props) {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className={styles.filters} role="group" aria-label="Фільтр за складністю">
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            className={`${styles.filterBtn} ${filter === f.value ? styles.filterActive : ''}`}
-            onClick={() => setFilter(f.value)}
-            aria-pressed={filter === f.value}
-          >
-            {f.label}
-          </button>
-        ))}
+      {/* View toggle */}
+      <div className={`${styles.viewToggle} no-print`} role="group" aria-label="Вигляд">
+        <button
+          className={`${styles.viewBtn} ${view === 'groups' ? styles.viewActive : ''}`}
+          onClick={() => setView('groups')}
+          aria-pressed={view === 'groups'}
+        >
+          За групами
+        </button>
+        <button
+          className={`${styles.viewBtn} ${view === 'list' ? styles.viewActive : ''}`}
+          onClick={() => setView('list')}
+          aria-pressed={view === 'list'}
+        >
+          Повний список
+        </button>
       </div>
 
-      {/* Food list */}
-      <ul className={styles.list} role="list">
-        {filtered.map((food) => {
-          const a = storage.assessments[food.id];
-          const change = changeLabel(a?.current ?? null, a?.oneYearAgo?.toString() ?? null);
-          return (
-            <li key={food.id} className={`${styles.item} print-item`}>
-              <div className={styles.itemMain}>
-                <span className={styles.itemName}>{food.nameUk}</span>
-                <span className={styles.itemEn}>{food.nameEn}</span>
-              </div>
-              <div className={styles.itemMeta}>
-                {a?.current && (
-                  <span className={`${styles.badge} ${styles[a.current]}`}>
-                    {DIFFICULTY_LABELS[a.current]}
-                  </span>
+      {/* ── GROUPS VIEW ── */}
+      {view === 'groups' && (
+        <div className={styles.groups}>
+          {GROUPS.map(({ key, label, emoji }) => {
+            const groupFoods = foods.filter((f) => storage.assessments[f.id]?.current === key);
+            return (
+              <section key={key} className={`${styles.group} ${styles[key]}`} aria-label={label}>
+                <h2 className={styles.groupTitle}>
+                  <span aria-hidden="true">{emoji}</span> {label}
+                  <span className={styles.groupCount}>{groupFoods.length}</span>
+                </h2>
+                {groupFoods.length === 0 ? (
+                  <p className={styles.groupEmpty}>Немає продуктів</p>
+                ) : (
+                  <ul className={styles.groupList} role="list">
+                    {groupFoods.map((food) => {
+                      const a = storage.assessments[food.id];
+                      return (
+                        <li key={food.id} className={styles.groupItem}>
+                          <span className={styles.groupItemName}>{food.nameUk}</span>
+                          {food.nameEn && food.nameEn !== food.nameUk && (
+                            <span className={styles.groupItemEn}>{food.nameEn}</span>
+                          )}
+                          {a?.oneYearAgo && a.oneYearAgo !== 'dont-remember' && a.oneYearAgo !== 'not-eaten-then' && (
+                            <span className={styles.groupItemChange}>
+                              {changeLabel(key, a.oneYearAgo)}
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 )}
-                {a?.oneYearAgo && (
-                  <span className={styles.past}>
-                    Рік тому: {PAST_LABELS[a.oneYearAgo]}
-                  </span>
-                )}
-                {a?.current && a?.oneYearAgo && (
-                  <span className={styles.change}>{change}</span>
-                )}
-              </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── LIST VIEW ── */}
+      {view === 'list' && (
+        <>
+          <div className={`${styles.filters} no-print`} role="group" aria-label="Фільтр за складністю">
+            {FILTERS.map((f) => (
               <button
-                className={styles.editBtn}
-                onClick={() => onNavigate(`/assess/${categoryId}`)}
-                aria-label={`Змінити оцінку для ${food.nameUk}`}
+                key={f.value}
+                className={`${styles.filterBtn} ${filter === f.value ? styles.filterActive : ''}`}
+                onClick={() => setFilter(f.value)}
+                aria-pressed={filter === f.value}
               >
-                Змінити
+                {f.label}
               </button>
-            </li>
-          );
-        })}
-      </ul>
+            ))}
+          </div>
+
+          <ul className={styles.list} role="list">
+            {filtered.map((food) => {
+              const a = storage.assessments[food.id];
+              const change = changeLabel(a?.current ?? null, a?.oneYearAgo?.toString() ?? null);
+              return (
+                <li key={food.id} className={`${styles.item} print-item`}>
+                  <div className={styles.itemMain}>
+                    <span className={styles.itemName}>{food.nameUk}</span>
+                    <span className={styles.itemEn}>{food.nameEn}</span>
+                  </div>
+                  <div className={styles.itemMeta}>
+                    {a?.current && (
+                      <span className={`${styles.badge} ${styles[a.current]}`}>
+                        {DIFFICULTY_LABELS[a.current]}
+                      </span>
+                    )}
+                    {a?.oneYearAgo && (
+                      <span className={styles.past}>
+                        Рік тому: {PAST_LABELS[a.oneYearAgo]}
+                      </span>
+                    )}
+                    {a?.current && a?.oneYearAgo && (
+                      <span className={styles.change}>{change}</span>
+                    )}
+                  </div>
+                  <button
+                    className={`${styles.editBtn} no-print`}
+                    onClick={() => onNavigate(`/assess/${categoryId}`)}
+                    aria-label={`Змінити оцінку для ${food.nameUk}`}
+                  >
+                    Змінити
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
 
       {/* Actions */}
       <div className={`${styles.actions} no-print`}>
